@@ -43,5 +43,4 @@ func TestSplitAtWord(t *testing.T) {
 			t.Errorf("Test failed! Expected: %q, Actual: %q", test.expected, actual)
 		}
 	}
-
 }
