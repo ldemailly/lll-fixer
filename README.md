@@ -1,6 +1,23 @@
 # lll-fixer
 Fix lll (line length limit) lines too long linter errors in go files
 
+## Installation
+
+From source
+```
+go install github.com/ldemailly/lll-fixer@latest
+```
+
+Or see the numerous binaries in https://github.com/ldemailly/lll-fixer/releases
+
+Or docker `fortio/lll-fixer:latest`
+
+Or brew `brew install fortio/tap/lll-fixer`
+
+(I manage the fortio org and usually put everything there but this one is a bit unrelated so for now it is hosted here in `ldemailly` yet uses fortio's org for docker and brew)
+
+## Example
+
 Test on itself:
 ```
 $ go run . lll_fixer.go

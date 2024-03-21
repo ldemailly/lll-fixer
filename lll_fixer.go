@@ -16,6 +16,7 @@ import (
 
 func main() {
 	maxlen := flag.Int("len", 79, "max line length")
+	funmpt := flag.Bool("fumpt", false, "run gofumpt on the modified file")
 	cli.MinArgs = 1
 	cli.MaxArgs = -1
 	cli.ArgsHelp = "filenames..."
@@ -34,12 +35,14 @@ func main() {
 		}
 		log.Infof("Renamed file %q to %q", newname, filename)
 		// Run gofumpt on the modified file
-		cmd := exec.Command("gofumpt", "-w", filename)
-		if err := cmd.Run(); err != nil {
-			log.Errf("Error running gofumpt: %v", err)
-			return
+		if *funmpt {
+			cmd := exec.Command("gofumpt", "-w", filename)
+			if err := cmd.Run(); err != nil {
+				log.Errf("Error running gofumpt: %v", err)
+				return
+			}
+			log.Infof("Ran gofumpt on the now modified file %q", filename)
 		}
-		log.Infof("Ran gofumpt on the now modified file %q", filename)
 	}
 }
 
