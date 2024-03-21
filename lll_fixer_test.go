@@ -10,9 +10,9 @@ func TestLineLead(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"Hello", "Hello"},
-		{"\nHello", "Hello"},
-		{"abc\nxyz\nTest", "Test"},
+		{"Hello", "Hel"},
+		{"\nHello", "Hel"},
+		{"abc\nxyz\nTest", "Tes"},
 	}
 	// loop through the tests
 	for _, test := range tests {

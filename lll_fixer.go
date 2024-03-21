@@ -20,6 +20,10 @@ func main() {
 	cli.MinArgs = 1
 	cli.MaxArgs = -1
 	cli.ArgsHelp = "filenames..."
+	if false {
+		// just to test literal string split
+		cli.ArgsHelp = "this is a very a long string literal to test the split of long strings inside code"
+	}
 	cli.Main()
 	fset := token.NewFileSet()
 	for _, filename := range flag.Args() {
@@ -75,6 +79,8 @@ func splitAtWord(s string, maxlen int) string {
 		mid = "\n * "
 	case strings.HasPrefix(lead, "// "):
 		mid = "\n// "
+	case strings.HasPrefix(lead, "\""):
+		mid = "\" +\n\t\"" // for string literals splitting
 	default:
 		log.Warnf("Unexpected lead %q", lead)
 		mid = "\n "
@@ -83,11 +89,18 @@ func splitAtWord(s string, maxlen int) string {
 	return strings.TrimSpace(s[:i]) + mid + strings.TrimLeft(s[i:], " ")
 }
 
+// TODO process other nodes (and also maybe split leftmost position in line vs length of comment/literal
+// which could be far to the right)
+
 func processNode(n ast.Node, maxlen int) bool {
 	if false {
 		log.Debugf("Found node: %+v to shrink to %d", n, maxlen)
 	}
-	// process the other lines (not just comments)
+	// process string literals
+	if lit, ok := n.(*ast.BasicLit); ok && lit.Kind == token.STRING {
+		lit.Value = splitAtWord(lit.Value, maxlen)
+	}
+	// more nodes...
 	return true
 }
 
