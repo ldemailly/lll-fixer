@@ -25,7 +25,7 @@ func main() {
 	}
 }
 
-// process modifies the file filename to split long comments at maxlen. making this line longer than 80 characters to test the lll fixer itself. fun no?
+// process modifies the file filename to split long comments at maxlen. making this line longer than 80 characters to test.
 func process(filename string, maxlen int) {
 	// Parse the Go file
 	fset := token.NewFileSet()
