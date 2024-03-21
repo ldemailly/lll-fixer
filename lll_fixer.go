@@ -48,7 +48,7 @@ func main() {
 
 func lineLead(s string) string {
 	i := strings.LastIndex(s, "\n")
-	return s[i+1:]
+	return s[i+1 : i+4] // will break with -len too low
 }
 
 /*
@@ -83,6 +83,14 @@ func splitAtWord(s string, maxlen int) string {
 	return strings.TrimSpace(s[:i]) + mid + strings.TrimLeft(s[i:], " ")
 }
 
+func processNode(n ast.Node, maxlen int) bool {
+	if false {
+		log.Debugf("Found node: %+v to shrink to %d", n, maxlen)
+	}
+	// process the other lines (not just comments)
+	return true
+}
+
 // process modifies the file filename to split long comments at maxlen. making this line longer than 80 characters to test.
 func process(fset *token.FileSet, filename string, maxlen int) string {
 	log.Infof("Processing file %q", filename)
@@ -92,18 +100,19 @@ func process(fset *token.FileSet, filename string, maxlen int) string {
 		log.Fatalf("Error parsing %q: %v", filename, err)
 		return "error.lll" // unreachable
 	}
-
-	// Traverse and modify the AST
-	ast.Inspect(node, func(n ast.Node) bool {
-		// Split long comments
-		if c, ok := n.(*ast.Comment); ok {
+	for _, cg := range node.Comments {
+		for _, c := range cg.List {
+			log.Debugf("Found comment     %q", c.Text)
 			if len(c.Text) > maxlen {
 				log.LogVf("Splitting comment %q", c.Text)
 				c.Text = splitAtWord(c.Text, maxlen)
 				log.LogVf("into ->           %q", c.Text)
 			}
 		}
-		return true
+	}
+	// Traverse and modify the AST
+	ast.Inspect(node, func(n ast.Node) bool {
+		return processNode(n, maxlen)
 	})
 
 	// Generate the modified code
