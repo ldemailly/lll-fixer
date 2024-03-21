@@ -46,10 +46,47 @@ func main() {
 	}
 }
 
+func lineLead(s string) string {
+	i := strings.LastIndex(s, "\n")
+	return s[i+1:]
+}
+
+/*
+ * Multi line comment with one line longer than 80 characters to test the split of multi line comments.
+ */
+func splitAtWord(s string, maxlen int) string {
+	if len(s) <= maxlen {
+		return s
+	}
+	// find the last space before maxlen
+	i := strings.LastIndex(s[:maxlen], " ")
+	if i == -1 {
+		// no space found, split at maxlen
+		log.Warnf("No word/space found in first %d characters for %q", maxlen, s)
+		i = maxlen
+	}
+	start := s[:i]
+	lead := lineLead(start)
+	var mid string
+	switch {
+	case strings.HasPrefix(lead, "/* "):
+		mid = "\n/* "
+	case strings.HasPrefix(lead, " * "):
+		mid = "\n * "
+	case strings.HasPrefix(lead, "// "):
+		mid = "\n// "
+	default:
+		log.Warnf("Unexpected lead %q", lead)
+		mid = "\n "
+	}
+	log.Debugf("Start lead is %q", lead)
+	return strings.TrimSpace(s[:i]) + mid + strings.TrimLeft(s[i:], " ")
+}
+
 // process modifies the file filename to split long comments at maxlen. making this line longer than 80 characters to test.
 func process(fset *token.FileSet, filename string, maxlen int) string {
 	log.Infof("Processing file %q", filename)
-	// Parse the Go file
+	// Parse the Go file and this is an indented comment to test the split past column 80.
 	node, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatalf("Error parsing %q: %v", filename, err)
@@ -62,8 +99,8 @@ func process(fset *token.FileSet, filename string, maxlen int) string {
 		if c, ok := n.(*ast.Comment); ok {
 			if len(c.Text) > maxlen {
 				log.LogVf("Splitting comment %q", c.Text)
-				c.Text = strings.TrimSpace(c.Text[:maxlen-1]) + "\n// " + strings.TrimSpace(c.Text[maxlen-1:])
-				log.LogVf("-> %q", c.Text)
+				c.Text = splitAtWord(c.Text, maxlen)
+				log.LogVf("into ->           %q", c.Text)
 			}
 		}
 		return true
