@@ -9,16 +9,16 @@ import (
 )
 
 /*
- * multi line comment
+ * multi line comment.
  */
 func main() {
 	code := `package main
+
 /*
- * multi line comment
+ * multi line comment.
  */
 func main() {
-}
-`
+}`
 	fmt.Println("---input---")
 	fmt.Println(code)
 	fmt.Println("---processing---")
@@ -30,9 +30,9 @@ func main() {
 	for _, cg := range node.Comments {
 		for _, c := range cg.List {
 			fmt.Printf("Found comment     %q\n", c.Text)
-			if len(c.Text) > 10 {
+			if len(c.Text) > 11 {
 				fmt.Printf("Splitting comment %q\n", c.Text)
-				c.Text = c.Text[:10] + "\n * " + c.Text[10:]
+				c.Text = c.Text[:11] + "\n *" + c.Text[11:]
 				fmt.Printf("into ->           %q\n", c.Text)
 			}
 		}
