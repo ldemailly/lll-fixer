@@ -70,7 +70,7 @@ func splitAtWord(s string, maxlen int) string {
 	var mid string
 	switch {
 	case strings.HasPrefix(lead, "/* "):
-		mid = "\n/* "
+		mid = "\n * "
 	case strings.HasPrefix(lead, " * "):
 		mid = "\n * "
 	case strings.HasPrefix(lead, "// "):
