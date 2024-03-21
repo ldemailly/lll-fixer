@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"strings"
 
 	"fortio.org/cli"
 	"fortio.org/log"
@@ -40,7 +41,9 @@ func process(filename string, maxlen int) {
 		// Split long comments
 		if c, ok := n.(*ast.Comment); ok {
 			if len(c.Text) > maxlen {
-				c.Text = c.Text[:maxlen-1] + "\n// " + c.Text[maxlen-1:]
+				log.LogVf("Splitting comment %q", c.Text)
+				c.Text = strings.TrimSpace(c.Text[:maxlen-1]) + "\n// " + strings.TrimSpace(c.Text[maxlen-1:])
+				log.LogVf("-> %q", c.Text)
 			}
 		}
 		return true
