@@ -34,6 +34,10 @@ func TestSplitAtWord(t *testing.T) {
 		{"// abc 1234567890", "// abc\n// 1234567890"},
 		{"/* abc   1234567890 */", "/* abc\n * 1234567890 */"},
 		{"/*\n * abc   1234567890\n*/", "/*\n * abc\n * 1234567890\n*/"},
+		{`"abc 1234567890"`, `"abc" +
+	" 1234567890"`},
+		{`"123456789ABC"`, `"123456789" +
+	"ABC"`},
 	}
 	// loop through the tests
 	for _, test := range tests {

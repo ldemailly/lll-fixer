@@ -64,7 +64,8 @@ func splitAtWord(s string, maxlen int) string {
 	}
 	// find the last space before maxlen
 	i := strings.LastIndex(s[:maxlen], " ")
-	if i == -1 {
+	nospace := (i == -1)
+	if nospace {
 		// no space found, split at maxlen
 		log.Warnf("No word/space found in first %d characters for %q", maxlen, s)
 		i = maxlen
@@ -81,6 +82,9 @@ func splitAtWord(s string, maxlen int) string {
 		mid = "\n// "
 	case strings.HasPrefix(lead, "\""):
 		mid = "\" +\n\t\"" // for string literals splitting
+		if !nospace {
+			mid += " "
+		}
 	default:
 		log.Warnf("Unexpected lead %q", lead)
 		mid = "\n "
