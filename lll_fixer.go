@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"os/exec"
 	"strings"
 
 	"fortio.org/cli"
@@ -14,26 +15,42 @@ import (
 )
 
 func main() {
-	maxlen := flag.Int("len", 79, "max line length") // 78 or 80 or 132 works but... somehow 79 is creating 2 new lines(!)
+	maxlen := flag.Int("len", 79, "max line length")
 	cli.MinArgs = 1
 	cli.MaxArgs = -1
 	cli.ArgsHelp = "filenames..."
 	cli.Main()
+	fset := token.NewFileSet()
 	for _, filename := range flag.Args() {
-		process(filename, *maxlen)
+		newname := process(fset, filename, *maxlen)
+		// swap .lll to .go and .go to .bak
+		backup := filename + ".bak"
+		if err := os.Rename(filename, backup); err != nil {
+			log.Fatalf("Error renaming file %q to %q: %v", filename, backup, err)
+		}
+		log.Infof("Renamed file %q to %q", filename, backup)
+		if err := os.Rename(newname, filename); err != nil {
+			log.Fatalf("Error renaming file %q to %q: %v", newname, filename, err)
+		}
+		log.Infof("Renamed file %q to %q", newname, filename)
 		// Run gofumpt on the modified file
+		cmd := exec.Command("gofumpt", "-w", filename)
+		if err := cmd.Run(); err != nil {
+			log.Errf("Error running gofumpt: %v", err)
+			return
+		}
+		log.Infof("Ran gofumpt on the now modified file %q", filename)
 	}
 }
 
 // process modifies the file filename to split long comments at maxlen. making this line longer than 80 characters to test.
-func process(filename string, maxlen int) {
-	// Parse the Go file
-	fset := token.NewFileSet()
+func process(fset *token.FileSet, filename string, maxlen int) string {
 	log.Infof("Processing file %q", filename)
+	// Parse the Go file
 	node, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
 	if err != nil {
-		log.Errf("Error parsing %q: %v", filename, err)
-		return
+		log.Fatalf("Error parsing %q: %v", filename, err)
+		return "error.lll" // unreachable
 	}
 
 	// Traverse and modify the AST
@@ -60,4 +77,5 @@ func process(filename string, maxlen int) {
 		log.Errf("Error outputting modified file: %v", err)
 	}
 	log.Infof("Modified file written to %q", newname)
+	return newname
 }
