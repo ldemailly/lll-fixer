@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	fortio.org/cli v1.9.0
-	fortio.org/log v1.16.0
+	fortio.org/log v1.17.1
 )
 
 require (
