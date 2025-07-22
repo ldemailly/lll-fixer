@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	maxlen := flag.Int("len", 79, "max line length")
+	maxlen := flag.Int("len", 79, "maximum line length")
 	funmpt := flag.Bool("fumpt", false, "run gofumpt on the modified file")
 	cli.MinArgs = 1
 	cli.MaxArgs = -1
